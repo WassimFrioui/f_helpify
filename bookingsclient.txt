@@ -1,0 +1,16 @@
+/bookings/client
+/bookings/provider
+/bookings/new
+
+/login
+/register
+/logout
+
+/services
+/services/[id]/edit
+/services/mine
+/services/new
+
+/token 
+
+/unauthorized
