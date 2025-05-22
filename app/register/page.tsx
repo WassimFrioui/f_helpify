@@ -11,6 +11,8 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('CLIENT');
+  const [siret, setSiret] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [location, setLocation] = useState('');
   const [error, setError] = useState('');
 
@@ -31,6 +33,16 @@ export default function RegisterPage() {
       setError("La localisation est requise.");
       return false;
     }
+    if (role === 'PROVIDER') {
+      if (!siret.trim()) {
+        setError("Le numéro de SIRET est requis pour les prestataires.");
+        return false;
+      }
+      if (!companyName.trim()) {
+        setError("Le nom de l'entreprise est requis pour les prestataires.");
+        return false;
+      }
+    }
     return true;
   };
 
@@ -47,27 +59,22 @@ export default function RegisterPage() {
         password,
         role,
         location,
+        siret: role === 'PROVIDER' ? siret : undefined,
+        companyName: role === 'PROVIDER' ? companyName : undefined,
       });
 
-      // login automatique après inscription
       Cookies.set('token', res.data.token);
       router.push('/services');
     } catch (err: unknown) {
-      type AxiosError = {
-        response?: {
-          data?: {
-            message?: string;
-          };
-        };
-      };
-      const axiosError = err as AxiosError;
       if (
         err &&
         typeof err === 'object' &&
         'response' in err &&
-        axiosError.response?.data?.message
+        (err as { response?: { data?: { message?: string } } }).response?.data?.message
       ) {
-        setError(axiosError.response.data.message as string);
+        setError(
+          (err as { response?: { data?: { message?: string } } }).response!.data!.message as string
+        );
       } else {
         setError("Erreur lors de l'inscription.");
       }
@@ -110,7 +117,7 @@ export default function RegisterPage() {
           <option value="CLIENT">Client</option>
           <option value="PROVIDER">Prestataire</option>
         </select>
-        <input 
+        <input
           type="text"
           placeholder="Localisation"
           value={location}
@@ -118,6 +125,27 @@ export default function RegisterPage() {
           className="w-full border p-2 rounded"
           required
         />
+        {role === 'PROVIDER' && (
+          <>
+            <input
+              type="text"
+              placeholder="Numéro de SIRET"
+              value={siret}
+              onChange={(e) => setSiret(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Nom de l'entreprise"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+            />
+          </>
+        )}
+
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
           S&apos;inscrire

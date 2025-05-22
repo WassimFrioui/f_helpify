@@ -15,6 +15,8 @@ export async function register(data: {
   password: string;
   role: string;
   location: string;
+  siret: string;
+  companyName: string;
 }) {
   const res = await api.post("/auth/register", data);
   Cookies.set("token", res.data.token);
